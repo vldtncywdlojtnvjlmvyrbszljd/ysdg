@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Key Done</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: url('https://cdn.getmidnight.com/13448471d89a9cd8d7f71026a0334ec8/2023/06/1036-3ff9-4b41-b7b1-8c5257601aff.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .container {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 0px 15px rgb(255, 255, 255);
+            min-height: 300px; /* Ensure container height remains fixed */
+        }
+
+        .logo {
+            width: 100px;
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 40px;
+            padding: 10px;
+            border-radius: 4px;
+            border: none;
+            font-size: 15px;
+            background-color: #2d2b2b;
+            color: #ecf0f1;
+            font-family: 'Courier New', Courier, monospace;
+            box-sizing: border-box;
+        }
+
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            background-color: #ff5733;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:disabled {
+            cursor: not-allowed;
+            background-color: #ff0000;
+            opacity: 0.6;
+        }
+
+        button:hover:not(:disabled) {
+            background-color: #ff0000;
+        }
+
+        #copyStatus {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        #countdown {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .loading-container {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        .loading-emoji {
+            width: 100px;
+            height: 100px;
+            background-image: url('https://media.giphy.com/media/l378khQxt68syiWJy/giphy.gif');
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
+        .loading-text {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #ffffff;
+        }
+
+        .rainbow-text {
+            animation: rainbow 5s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { color: red; }
+            14% { color: orange; }
+            28% { color: yellow; }
+            42% { color: green; }
+            57% { color: blue; }
+            71% { color: indigo; }
+            85% { color: violet; }
+            100% { color: red; }
+        }
+        .text1 {
+            margin-top: 10px;
+            font-size: 18px;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhvCFeTo0luiuznnKrNKPNK87_gKuJSwZBCxIxYB6N5n0FCw3vl25sHyQ262wd5hqHabO726LKxGmwmlB2ihF8NLEVQYXxcheTgct3Tfmw6gyVle4v7oOC-o4cr-apUO-Ez3KjFqi74m93Qa2g7fyUMWI8agTDieCgd5W9oeKJiom23SI4DBH6zm1xFb_tS/s1280/armor.jpg" alt="Logo" class="logo" id="logo">
+        <h1 class="rainbow-text">BRUTALITY HUB</h1>
+        <div class="loading-container">
+            <div class="loading-emoji"></div>
+            <div class="loading-text">Wait Generate...</div>
+        </div>
+        <textarea id="textToCopy" readonly></textarea>
+        <button id="generateKeyButton">Generate Key</button>
+        <button id="copyButton">Copy Key</button>
+        <p class="text1" id="copyStatus"></p>
+        <p class="text1" id="countdown"></p>
+    </div>
+    <script>
+        let isGenerating = false;
+        let keyGenerated = false; // New flag to track if key has been generated
+
+        async function getSingleKey() {
+            try {
+                const response = await fetch('de3.bot-hosting.net:22886/api/get_keys', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    return data[Math.floor(Math.random() * data.length)];
+                } else {
+                    return 'No keys available';
+                }
+            } catch (error) {
+                console.error('Error fetching key:', error);
+                return 'Error fetching key';
+            }
+        }
+
+        async function generateKey() {
+            if (isGenerating || keyGenerated) return; // Prevent multiple clicks or generation after key is displayed
+            isGenerating = true;
+
+            const generateButton = document.getElementById('generateKeyButton');
+            const loadingContainer = document.querySelector('.loading-container');
+            const textToCopy = document.getElementById('textToCopy');
+
+            generateButton.disabled = true;
+            loadingContainer.style.display = 'flex';
+            textToCopy.value = '';
+
+            // Wait for 10 seconds to simulate loading
+            await new Promise(resolve => setTimeout(resolve, 10000));
+
+            const newKey = await getSingleKey();
+
+            textToCopy.value = newKey;
+
+            loadingContainer.style.display = 'none';
+            keyGenerated = true; // Set flag to true after key is generated
+        }
+
+        document.getElementById('generateKeyButton').addEventListener('click', generateKey);
+
+        document.getElementById('copyButton').addEventListener('click', async function() {
+            const textToCopy = document.getElementById('textToCopy');
+            textToCopy.select();
+            textToCopy.setSelectionRange(0, 99999);
+
+            try {
+                await navigator.clipboard.writeText(textToCopy.value);
+                document.getElementById('copyStatus').textContent = 'Key copied to clipboard!';
+                startCountdown(24 * 60 * 60);
+            } catch (err) {
+                document.getElementById('copyStatus').textContent = 'Failed to copy Key.';
+            }
+        });
+
+        function startCountdown(seconds) {
+            const countdownElement = document.getElementById('countdown');
+
+            const interval = setInterval(() => {
+                const hours = Math.floor(seconds / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+                const remainingSeconds = seconds % 60;
+
+                countdownElement.textContent = `Reset Key: ${hours}h ${minutes}m ${remainingSeconds}s`;
+
+                if (seconds <= 0) {
+                    clearInterval(interval);
+                    countdownElement.textContent = 'Countdown finished!';
+                }
+
+                seconds--;
+            }, 1000);
+        }
+
+        // Prevent access to DevTools
+        document.addEventListener('keydown', function(event) {
+            if (event.keyCode === 123 || 
+                (event.ctrlKey && event.shiftKey && event.keyCode === 73) || 
+                (event.ctrlKey && event.shiftKey && event.keyCode === 67) ||
+                (event.ctrlKey && event.shiftKey && event.keyCode === 74) ||
+                (event.ctrlKey && event.keyCode === 85)) {
+                event.preventDefault();
+                alert("Inspect tidak diperbolehkan di halaman ini.");
+                location.reload(); // Refresh page on DevTools access attempt
+            }
+        });
+
+        // Disable right-click
+        document.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+
+        // Prevent right-click context menu
+        window.addEventListener('contextmenu', function(e) {
+            e.preventDefault();
+        });
+    </script>
+    <script type='text/javascript' src='//marinadeworriesdurable.com/8b/a5/cf/8ba5cfc225169d74b54614d3af4280e5.js'></script>
+</body>
+</html>
