@@ -1,1 +1,1 @@
-CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:$PORT"]
+web: gunicorn my-flask-app.app:app
